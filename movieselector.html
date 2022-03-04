@@ -1,0 +1,256 @@
+<html>
+<head>
+<script
+    type="text/javascript"
+    src="jquery-1.9.1.js"
+    
+  ></script>
+
+    <link rel="stylesheet" type="text/css" href="/css/result-light.css">
+    <script>
+      const customConsole = (w) => {
+        const pushToConsole = (payload, type) => {
+          w.parent.postMessage({
+            console: {
+              payload: stringify(payload),
+              type:    type
+            }
+          }, "*")
+        }
+
+        w.onerror = (message, url, line, column) => {
+          // the line needs to correspond with the editor panel
+          // unfortunately this number needs to be altered every time this view is changed
+          line = line - 70
+          if (line < 0){
+            pushToConsole(message, "error")
+          } else {
+            pushToConsole(`[${line}:${column}] ${message}`, "error")
+          }
+        }
+
+        let console = (function(systemConsole){
+          return {
+            log: function(){
+              let args = Array.from(arguments)
+              pushToConsole(args, "log")
+              systemConsole.log.apply(this, args)
+            },
+            info: function(){
+              let args = Array.from(arguments)
+              pushToConsole(args, "info")
+              systemConsole.info.apply(this, args)
+            },
+            warn: function(){
+              let args = Array.from(arguments)
+              pushToConsole(args, "warn")
+              systemConsole.warn.apply(this, args)
+            },
+            error: function(){
+              let args = Array.from(arguments)
+              pushToConsole(args, "error")
+              systemConsole.error.apply(this, args)
+            },
+            system: function(arg){
+              pushToConsole(arg, "system")
+            },
+            clear: function(){
+              systemConsole.clear.apply(this, {})
+            },
+            time: function(){
+              let args = Array.from(arguments)
+              systemConsole.time.apply(this, args)
+            },
+            assert: function(assertion, label){
+              if (!assertion){
+                pushToConsole(label, "log")
+              }
+
+              let args = Array.from(arguments)
+              systemConsole.assert.apply(this, args)
+            }
+          }
+        }(window.console))
+
+        window.console = { ...window.console, ...console }
+
+        console.system("Running fiddle")
+      }
+
+      if (window.parent){
+        customConsole(window)
+      }
+    </script>
+
+
+</head>
+<br>
+<br>
+<body>
+<table>
+<style>
+selector {
+CSS property: value;
+}
+td, th {
+    border: 1px solid gray;
+    padding: 5px;
+}
+
+th {cursor: pointer; background: #eee;}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.collapsed {
+    display: none;
+}
+</style>
+  <style id="compiled-css" type="text/css">
+      td, th {
+    border: 1px solid gray;
+    padding: 5px;
+}
+
+th {cursor: pointer; background: #eee;}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.collapsed {
+    display: none;
+}
+    /* EOS */
+  </style>
+
+
+<table>
+    <thead>
+        <tr><th>Action</th></tr>
+    </thead>
+    
+    <tbody class="collapsed">
+        <tr><td>War and Military</td></tr>
+        <tr><td>Shoot 'Em Up</td></tr>
+		<tr><td>Classic Detective</td></tr>
+    </tbody>
+    
+    <thead>
+        <tr><th>Comedy</th></tr>
+    </thead>
+    
+    <tbody class="collapsed">
+        <tr><td>StandUp</td></tr>
+        <tr><td>Parody</td></tr>
+		<tr><td>Slapstick</td></tr>
+		<tr><td>Deadpan</td></tr>
+		<tr><td>Mockumentary</td></tr>
+    </tbody>
+
+    <thead>
+        <tr><th>Drama</th></tr>
+    </thead>
+    
+    <tbody class="collapsed">
+        <tr><td>Intelligent</td></tr>
+        <tr><td>Soap</td></tr>
+    </tbody>
+
+<thead>
+        <tr><th>Fantasy</th></tr>
+    </thead>
+    
+    <tbody class="collapsed">
+        <tr><td>SciFi</td></tr>
+        <tr><td>RomCom</td></tr>
+    </tbody>
+
+<thead>
+        <tr><th>Horror</th></tr>
+    </thead>
+    
+    <tbody class="collapsed">
+        <tr><td>SciFi</td></tr>
+        <tr><td>Gore</td></tr>
+    </tbody>
+
+<thead>
+        <tr><th>Mystery</th></tr>
+    </thead>
+    
+    <tbody class="collapsed">
+        <tr><td>Whudunnit</td></tr>
+        <tr><td>Espionage</td></tr>
+		<tr><td>Spy</td></tr>
+    </tbody>
+
+<thead>
+        <tr><th>Romance</th></tr>
+    </thead>
+    
+    <tbody class="collapsed">
+        <tr><td>High School</td></tr>
+        <tr><td>Musical</td></tr>
+		<tr><td>Intense</td></tr>
+    </tbody>
+
+<thead>
+        <tr><th>Thriller</th></tr>
+    </thead>
+    
+    <tbody class="collapsed">
+        <tr><td>Psychological</td></tr>
+        <tr><td>Crime</td></tr>
+    </tbody>  
+ 
+</table>
+    <script type="text/javascript">//<![CDATA[
+
+
+$('thead').on('click', function(){
+    $(this).next('tbody').toggleClass('collapsed');
+});
+
+
+  //]]></script>
+   <script>
+    // tell the embed parent frame the height of the content
+    if (window.parent && window.parent.parent){
+      window.parent.parent.postMessage(["resultsFrame", {
+        height: document.body.getBoundingClientRect().height,
+        slug: "zGRSF"
+      }], "*")
+    }
+
+    // always overwrite window.name, in case users try to set it manually
+    window.name = "result"
+  </script>
+
+    <script>
+      let allLines = []
+
+      window.addEventListener("message", (message) => {
+        if (message.data.console){
+          let insert = document.querySelector("#insert")
+          allLines.push(message.data.console.payload)
+          insert.innerHTML = allLines.join(";\r")
+
+          let result = eval.call(null, message.data.console.payload)
+          if (result !== undefined){
+            console.log(result)
+          }
+        }
+      })
+    </script>
+<br>
+<br>
+<br>
+</body>
+   <input class="favorite styled"
+       type="button"
+       value="Take me to Streaming service">
+</html>
